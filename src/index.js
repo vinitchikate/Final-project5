@@ -1,8 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const route = require('./routes/route');
+const route = require('./route/route.js');
 const multer= require("multer");
+const bcrypt = require('bcrypt')
 const app = express();
 const { AppConfig } = require('aws-sdk');
 
