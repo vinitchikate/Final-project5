@@ -12,7 +12,11 @@ router.get("/user/:userId/profile",middleware.tokenValidator,userController.getU
  router.put('/user/:userId/profile',middleware.tokenValidator,userController.updateUser)
 
  ///--------------------------ProductModel APIs-----------------------------------///
- router.post("/products", productController.createProduct)
+ router.post("/products", productController.createProduct);   // createProduct
+//router.get("/products", productController.getAllProducts);   //getAllProducts
+router.get("/products/:productId", productController.getProductById);   //getProductById
+//router.put("/products/:productId",  productController.updateProduct);    //updateProduct
+router.delete("/products/:productId", productController.deleteProduct);   //deleteProduct
 
 
 
