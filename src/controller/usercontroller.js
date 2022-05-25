@@ -1,8 +1,9 @@
-const UserModel = require("../model/userModel")
+const UserModel = require("../model/usermodel")
 const mongoose = require("mongoose")
 const jwt=require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const aws = require('aws-sdk')
+const validator = require("../validator/validator")
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 
@@ -304,12 +305,14 @@ const getUserDetails = async function (req, res) {
 
         const userIdfromParams = req.params.userId
         const userIdFromToken = req.userId
+        let userId = req.params.userId
 
-        let isValiduserID = mongoose.Types.ObjectId.isValid(userIdfromParams );//check if objectId is objectid
+
+        let isValiduserID = mongoose.Types.ObjectId.isValid(userIdfromParams );//check if objectId is correct
         if (!isValiduserID) {
             return res.status(400).send({ status: false, message: "user Id is Not Valid" });
         }
-        const checkId = await UserModel.findOne({ _id: userIdfromParams }).lean()
+        let checkId = await UserModel.findOne({ _id: userId})
         if (!checkId) {
             return res.status(404).send({ status: false, message: "User Not Found" });
         }
@@ -329,9 +332,138 @@ const getUserDetails = async function (req, res) {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
+//---------------------------------update user----------------------------------//
+const updateUser = async (req, res) => {
+    try{
+        const {userId} = req.params
+        if (!validator.isValidObjectId(userId)){
+            return res.status(400).send ({status:false, message :"Please provide valid ID"})
+        }
+        const data = req.body //JSON.parse(JSON.stringify(req.body)) 
+        const files = req.files
+        const {password} = data
+        const updateUserData = {}
+        // if(!validator.isValidObject(data)){
+        //     return res.status(400).send ({status:false, message :"Please provide body"})
+        // }
+        const isUserExist = await UserModel.findById(userId)
+        if (!isUserExist){
+            return res.status(404).send({status: false, message: "user not found"})
+        }
+        if(data._id){
+            return res.status(400).send({status: false, message: "can not update user id"})
+        }
+        if(data.fname){
+            if(!(validator.isValid(data.fname))) {
+                return res.status(400).send ({status: false, message: "please provide valid first name"})
+            }
+            if(!validator.isValidString(data.fname)){
+                return res.status(400).send({status: false, message: "please enter letters only in first name"})
+            }
+            updateUserData.fname = data.fname
+        }
+        if(data.lname){
+            if(!(validator.isValid(data.lname))) {
+                return res.status(400).send ({status: false, message: "please provide valid lname name"})
+            }
+            if(!validator.isValidString(data.lname)){
+                return res.status(400).send({status: false, message: "please enter letters only in last name"})
+            }
+            updateUserData.lname = data.lname
+        }
+        if(data.email){
+            if(!validator.isValidEmail(data.email)) {
+                return res.status(400).send({status:false, message: "Please provide valid email Id"})
+             
+            }
+            const isEmailInUse = await UserModel.findOne({email: data.email})
+            if(isEmailInUse) {
+                return res.status(400).send({status:false, message: "email already registered, enter different email"})
+            }
+            updateUserData.email = data.email
+        }
+        if(data.phone){
+            if(!validator.isValidPhone(data.phone)) {
+                return res.status(400).send({status:false, message: "Please provide 10 digit number && number should start with 6,7,8,9"})
+             
+            }
+            const isPhoneInUse = await UserModel.findOne({phone: data.phone})
+            if(isPhoneInUse) {
+                return res.status(400).send({status:false, message: "phone number already registered, enter different number"})
+            }
+            updateUserData.phone = data.phone
 
+        }
+        //it check image avilable or not
+        if(files && files.length > 0){
+            const link = await getProfileImgLink(req, res)
+            updateUserData.profileImage = link
+        }
+        if (password){
+            const hash = await bcrypt.hash(password, salt)
+            updateUserData.password = hash
+        }
+        const add = JSON.parse(JSON.stringify(isUserExist.address))
+        if(data.address){
+            data.address = JSON.parse(data.address)
 
+            if(data.address.shipping){
+                if(data.address.shipping.street){
+                    if (!validator.isValid(data.address.shipping.street)){
+                        return res.status(400).send({status: false, message: "please enter shipping street name"})
+                    }
+                    add.shipping.street = data.address.shipping.street
+                }
+                if(data.address.shipping.city){
+                    if (!validator.isValid(data.address.shipping.city)){
+                        return res.status(400).send({status: false, message: "please enter shipping city name"})
+                    }
+                    add.shipping.city = data.address.shipping.city
+                }
+                if(data.address.shipping.pincode){
+                    if (!validator.isValid(data.address.shipping.pincode)){
+                        return res.status(400).send({status: false, message: "please enter shipping pincode"})
+                    }
+                if(!validator.isValidPincode(data.address.shipping.pincode)) {
+                    return res.status(400).send({status: false, message: "please enter valid shipping pincode only accept 6 didgit number "})
+                }   
+                    add.shipping.pincode = data.address.shipping.pincode
+                }
+            }
+            if(data.address.billing){
+                if(data.address.billing.street){
+                    if (!validator.isValid(data.address.billing.street)){
+                        return res.status(400).send({status: false, message: "please enter billing street name"})
+                    }
+                    add.billing.street = data.address.billing.street
+                }
+                if(data.address.billing.city){
+                    if (!validator.isValid(data.address.billing.city)){
+                        return res.status(400).send({status: false, message: "please enter billing city name"})
+                    }
+                    add.billing.city = data.address.billing.city
+                }
+                if(data.address.billing.pincode){
+                    if (!validator.isValid(data.address.billing.pincode)){
+                        return res.status(400).send({status: false, message: "please enter billing pincode"})
+                    }
+                
+                if(!validator.isValidPincode(data.address.billing.pincode)) {
+                        return res.status(400).send({status: false, message: "please enter valid billing pincode only accept 6 didgit number "})
+                    }    
+                    add.billing.pincode = data.address.billing.pincode
+                }
+            }
+            updateUserData.address = add
+        }
+        if (!validator.isValidObject(updateUserData)){
+            return res.status(400).send({status: false, message: "please enter data for updation"})
+        }
+        const updateUser = await UserModel.findOneAndUpdate({_id: userId}, updateUserData, {new: true})
+        return res.status(200).send({status: true, message: "User profile update successfully", data: updateUser})
+    }catch(error){
+        return res.status(500).send({status: false, message: error.message})
+    }
+}
 
-
-
-module.exports = { register ,login,getUserDetails}
+module.exports = { register ,login,getUserDetails,updateUser}
