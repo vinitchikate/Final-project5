@@ -69,7 +69,7 @@ let uploadFile = async (file) => {
     })
 }
 
-
+const salt = 10
 
 
 const register = async (req, res) => {
@@ -396,7 +396,7 @@ const updateUser = async (req, res) => {
         }
         //it check image avilable or not
         if(files && files.length > 0){
-            const link = await getProfileImgLink(req, res)
+            const link = await ProfileImgeLink(req, res)
             updateUserData.profileImage = link
         }
         if (password){
