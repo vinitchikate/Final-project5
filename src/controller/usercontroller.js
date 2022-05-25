@@ -4,6 +4,7 @@ const jwt=require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const aws = require('aws-sdk')
 const validator = require("../validator/validator")
+const { isValidObjectId } = require("mongoose")
 
 //--------------------------------------------------------------------------------------------------------------------------------------
 
@@ -295,7 +296,7 @@ const login = async function(req,res){
 }
 
 
-const { isValidObjectId } = require("mongoose")
+
 
 
 
