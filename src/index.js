@@ -11,7 +11,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use( multer().any())
 
-mongoose.connect("mongodb+srv://Vinit12:Vinit123@cluster0.hjamr.mongodb.net/Group34DataBase").then(() => console.log("MongoDB Is Connected")).catch(err => console.log(err));
+mongoose.connect("mongodb+srv://Vinit12:Vinit123@cluster0.hjamr.mongodb.net/Group34DataBase")
+.then(() => console.log("MongoDB Is Connected"))
+.catch(err => console.log(err));
 
 app.use('/', route);
 

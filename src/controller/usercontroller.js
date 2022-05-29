@@ -228,7 +228,7 @@ const register = async (req, res) => {
 
         data.address = address
         // //create user--------------------------------------------------------------------------------------------------
-        const user = await UserModel.create(data)
+        const user = await userModel.create(data)
         return res.status(201).send({ status: true, message: "success", data: user })
 
     }
@@ -397,7 +397,7 @@ const updateUser = async (req, res) => {
         }
         //it check image avilable or not
         if(files && files.length > 0){
-            const link = await ProfileImgeLink(req, res)
+            const link = await uploadFile(files[0])
             updateUserData.profileImage = link
         }
         if (password){
