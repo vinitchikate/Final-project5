@@ -9,7 +9,7 @@ const createOrder = async function (req, res) {
         // Validate body
         const body = req.body
         if (!validator.isValidBody(body)) {
-            return res.status(400).send({ status: false, msg: "Product details must be present" })
+            return res.status(400).send({ status: false, msg: "Plz Enter data in body" })
         }
 
         const userId = req.params.userId;
@@ -24,15 +24,14 @@ const createOrder = async function (req, res) {
         }
 
         const { cartId, cancellable, status } = body
+        
+        if (cartId.length < 24 || cartId.length > 24) {
+            return res.status(400).send({ status: false, msg: "Plz Enter Valid Length Of cartId in Params !!!" });
+        }
 
         // Validate cartId
         if (!validator.isValid(cartId)) {
             return res.status(400).send({ status: false, msg: "cartId must be present" })
-        }
-
-        // Validation of cartId
-        if (!validator.isValidObjectId(cartId)) {
-            return res.status(400).send({ status: false, msg: "Invalid cartId" })
         }
 
         const userSearch = await userModel.findOne({ _id: userId })
@@ -40,7 +39,7 @@ const createOrder = async function (req, res) {
             return res.status(400).send({ status: false, msg: "User does not exist" })
         }
 
-        const cartSearch = await cartModel.findOne({ userId }).select({ items: 1, totalPrice: 1, totalItems: 1 })
+        const cartSearch = await cartModel.findById(cartId).select({ items: 1, totalPrice: 1, totalItems: 1 })
         if (!cartSearch) {
             return res.status(400).send({ status: false, msg: "Cart does not exist" })
         }
@@ -49,7 +48,6 @@ const createOrder = async function (req, res) {
         if (userIdFindOrder) {
             return res.status(400).send({ status: false, msg: "Order already created with this user !!!" });
         }
-
 
         if (status) {
             if (!validator.isValidStatus(status)) {
