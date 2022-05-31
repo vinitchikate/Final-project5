@@ -76,7 +76,7 @@ const createCart = async (req, res) => {
 
             let filterProduct = validId.filter(e => e.quantity >= 1 && e.productId)
             if (filterProduct?.length != validId.length) {
-                return res.status(400).send({ status: false, message: `some proct are missing or quantity is 0` })
+                return res.status(400).send({ status: false, message: `some product are missing or quantity is 0` })
 
             }
 
@@ -92,7 +92,7 @@ const createCart = async (req, res) => {
                 //totalItems += filterProduct[i].quantity
                 let p = await price(filterProduct[i].productId) // price function is called here
 
-                if (!p) return res.status(400).send({ state: false, message: `productb id ${filterProduct[i].productId} dont exist` })
+                if (!p) return res.status(400).send({ state: false, message: `product id ${filterProduct[i].productId} dont exist` })
                 console.log(p)
                 totalPrice += p * filterProduct[i].quantity   //quantity * price = totalprice
 
@@ -392,7 +392,7 @@ const deleteCart = async function (req, res) {
         }
         let cart = { totalItems: 0, totalPrice: 0, items: [] }
         const deleteCart = await cartModel.findOneAndUpdate({ userId: userId }, cart, { new: true })
-        return res.status(204).send({ status: true, message: "cart deleted successfully", data: deleteCart })
+        return res.status(200).send({ status: true, message: "cart deleted successfully", data: deleteCart })
 
 
     }

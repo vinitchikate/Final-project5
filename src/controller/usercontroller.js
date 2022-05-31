@@ -84,7 +84,7 @@ const register = async (req, res) => {
 
         //fname is mandatory and must be in [Mr , Mrs , Miss]------------------------------------------------
         if (!data.fname) {
-            return res.status(400).send({ status: false, message: "firest name is required!!!" })
+            return res.status(400).send({ status: false, message: "first name is required!!!" })
         }
         if (!validateName(data.fname)) {
             return res.status(400).send({ status: false, message: "first name is INVALID!!!" })
@@ -228,7 +228,7 @@ const register = async (req, res) => {
 
         data.address = address
         // //create user--------------------------------------------------------------------------------------------------
-        const user = await userModel.create(data)
+        const user = await UserModel.create(data)
         return res.status(201).send({ status: true, message: "success", data: user })
 
     }
@@ -307,7 +307,7 @@ const getUserDetails = async function (req, res) {
         const userIdfromParams = req.params.userId
         const userIdFromToken = req.userId
         let userId = req.params.userId
-
+        //let TokenuserId = req.TokenUserId
 
         let isValiduserID = mongoose.Types.ObjectId.isValid(userIdfromParams );//check if objectId is correct
         if (!isValiduserID) {
@@ -317,12 +317,15 @@ const getUserDetails = async function (req, res) {
         if (!checkId) {
             return res.status(404).send({ status: false, message: "User Not Found" });
         }
+          let TokenuserId = req.TokenUserId
+           if (TokenuserId != userId) {
+            return res.status(400).send({ status: false, message: "you are not authorized" });
+              }
 
 
-
-        if (userIdFromToken != userIdfromParams) {
-            return res.status(403).send({ status: false, message: "Unauthorized access" });
-        };
+        // if (userIdFromToken != userIdfromParams) {
+        //     return res.status(403).send({ status: false, message: "Unauthorized access" });
+        // };
 
         return res.status(200).send({ status: true, message: "User details", data: checkId });
 
