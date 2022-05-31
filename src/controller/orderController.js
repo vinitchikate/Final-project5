@@ -4,25 +4,14 @@ const validator = require("../validator/validator")
 const OrderModel = require("../model/orderModel")
 
 
-const createOrder = async function(req,res) {
-    try{
+const createOrder = async function (req, res) {
+    try {
         // Validate body
         const body = req.body
-        if(!validator.isValidBody(body)) {
-            return res.status(400).send({ status: false, msg: "Product details must be present"})
+        if (!validator.isValidBody(body)) {
+            return res.status(400).send({ status: false, msg: "Product details must be present" })
         }
 
-        // // Validate query (it must not be present)
-        // const query = req.query;
-        // if(validator.isValidBody(query)) {
-        //     return res.status(400).send({ status: false, msg: "Invalid userId"});
-        // }
-
-        // // Validate params
-        // const userId = req.params.userId;
-        // if(!validator.isValidObjectId(userId)) {
-        //     return res.status(400).send({ status: false, msg: "Invalid parameters"});
-        // }
         const userId = req.params.userId;
         if (userId.length < 24 || userId.length > 24) {
             return res.status(400).send({ status: false, msg: "Plz Enter Valid Length Of userId in Params !!!" });
@@ -30,30 +19,30 @@ const createOrder = async function(req,res) {
 
 
         // AUTHORISATION
-        if(userId != req.TokenUserId) {
-            return res.status(401).send({status: false, msg: "Unauthorised access"})
+        if (userId != req.TokenUserId) {
+            return res.status(401).send({ status: false, msg: "Unauthorised access" })
         }
 
-        const {cartId, cancellable, status} = body
+        const { cartId, cancellable, status } = body
 
         // Validate cartId
-        if(!validator.isValid(cartId)) {
-            return res.status(400).send({status: false, msg: "cartId must be present"})
+        if (!validator.isValid(cartId)) {
+            return res.status(400).send({ status: false, msg: "cartId must be present" })
         }
 
         // Validation of cartId
-        if(!validator.isValidObjectId(cartId)) {
-            return res.status(400).send({status: false, msg: "Invalid cartId"})
+        if (!validator.isValidObjectId(cartId)) {
+            return res.status(400).send({ status: false, msg: "Invalid cartId" })
         }
 
-        const userSearch = await userModel.findOne({_id: userId})
-        if(!userSearch) {
-            return res.status(400).send({status: false, msg: "User does not exist"})
+        const userSearch = await userModel.findOne({ _id: userId })
+        if (!userSearch) {
+            return res.status(400).send({ status: false, msg: "User does not exist" })
         }
 
-        const cartSearch = await cartModel.findOne({userId}).select({items:1, totalPrice:1, totalItems:1})
-        if(!cartSearch) {
-            return res.status(400).send({status: false, msg: "Cart does not exist"})
+        const cartSearch = await cartModel.findOne({ userId }).select({ items: 1, totalPrice: 1, totalItems: 1 })
+        if (!cartSearch) {
+            return res.status(400).send({ status: false, msg: "Cart does not exist" })
         }
 
         const userIdFindOrder = await OrderModel.findOne({ userId: userId });
@@ -62,9 +51,9 @@ const createOrder = async function(req,res) {
         }
 
 
-        if(status) {
-            if(!validator.isValidStatus(status)) {
-                return res.status(400).send({status: false, msg: "Order status by default is pending"})
+        if (status) {
+            if (!validator.isValidStatus(status)) {
+                return res.status(400).send({ status: false, msg: "Order status by default is pending" })
             }
         }
         let order = {
@@ -78,7 +67,7 @@ const createOrder = async function(req,res) {
         }
 
         let createdOrder = await OrderModel.create(order)
-        return res.status(201).send({status: true, msg: "Success", data: createdOrder})
+        return res.status(201).send({ status: true, msg: "Success", data: createdOrder })
     }
     catch (err) {
         console.log("This is the error :", err.message)
