@@ -1,16 +1,16 @@
 const mongoose = require("mongoose")
 
 const isValidObject = (data) => {
-    if (Object.keys(data).length === 0){
+    if (Object.keys(data).length === 0) {
         return false
     }
     return true
 }
 
 const isValid = (value) => {
-    if(typeof(value) == "undefined" || value == null)return false
-    if(typeof(value) == "string" && value.trim().length === 0) return false
-    if(typeof(value) == "number" && value === null) return false
+    if (typeof (value) == "undefined" || value == null) return false
+    if (typeof (value) == "string" && value.trim().length === 0) return false
+    if (typeof (value) == "number" && value === null) return false
     return true
 }
 
@@ -33,17 +33,20 @@ const isValidObjectId = (value) => {
 }
 
 const isValidSize = function (title) {
-    return ["S", "XS","M","X", "L","XXL", "XL"].indexOf(title) !== -1
+    return ["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(title) !== -1
 }
 
 const isValidString = (value) => {
     return /^[a-zA-Z -]+$/.test(value)
 }
 
-const isValidPincode = (value) =>{
+const isValidPincode = (value) => {
     return /^[1-9][0-9]{5}$/.test(value)
-   }
+}
 
+const isValidBody = function (requestBody) {
+    return Object.keys(requestBody).length > 0;
+}
 
 module.exports.isValidObject = isValidObject
 module.exports.isValid = isValid
@@ -53,4 +56,5 @@ module.exports.isValidPW = isValidPW
 module.exports.isValidObjectId = isValidObjectId
 module.exports.isValidSize = isValidSize
 module.exports.isValidString = isValidString
-module.exports.isValidPincode=isValidPincode
+module.exports.isValidPincode = isValidPincode
+module.exports.isValidBody = isValidBody
