@@ -24,9 +24,9 @@ const createOrder = async function (req, res) {
         }
 
         const { cartId, cancellable, status } = body
-        
-        if (cartId.length < 24 || cartId.length > 24) {
-            return res.status(400).send({ status: false, msg: "Plz Enter Valid Length Of cartId in Params !!!" });
+
+        if (!validator.isValidObjectId(cartId)) {
+            return res.status(400).send({ status: false, msg: "Plz Enter Valid cartId in Body !!!" });
         }
 
         // Validate cartId
