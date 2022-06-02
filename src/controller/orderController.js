@@ -8,7 +8,7 @@ const createOrder = async function (req, res) {
     try {
         // Validate body
         const body = req.body
-        if (!validator.isValidBody(body)) {
+        if (!validator.isValid(body)) {
             return res.status(400).send({ status: false, msg: "Plz Enter data in body" })
         }
 
@@ -25,13 +25,13 @@ const createOrder = async function (req, res) {
 
         const { cartId, cancellable, status } = body
 
-        if (!validator.isValidObjectId(cartId)) {
-            return res.status(400).send({ status: false, msg: "Plz Enter Valid cartId in Body !!!" });
-        }
-
         // Validate cartId
         if (!validator.isValid(cartId)) {
             return res.status(400).send({ status: false, msg: "cartId must be present" })
+        }
+
+        if (!validator.isValidObjectId(cartId)) {
+            return res.status(400).send({ status: false, msg: "Plz Enter valid cartId in Body !!!" });
         }
 
         const userSearch = await userModel.findOne({ _id: userId })
@@ -73,4 +73,37 @@ const createOrder = async function (req, res) {
     }
 }
 
-module.exports.createOrder = createOrder
+//---------------------------------------updateOrder-----------------------------------------//
+const updateOrder = async (req, res) => {
+    try {
+        let requestBody = req.body
+        let userId = req.params.userId
+
+
+        if (Object.keys(requestBody).length == 0)
+            return res.status(400).send({ status: false, msg: "order ID not given" })
+
+        if (!validator.isValidObjectId(requestBody.orderId))
+            return res.status(400).send({ status: false, msg: "order Id is invalid" })
+
+        let orderDetail = await OrderModel.findOne({ _id: requestBody.orderId, userId, isDeleted: false })
+        if (!orderDetail)
+            return res.status(404).send({ status: false, message: "Order not exist" })
+
+        if (orderDetail.cancellable == false)
+            return res.status(200).send({ status: false, message: "Order cannot be cancelled" })
+
+        if (orderDetail.status == "cancelled") {
+            return res.status(400).send({ status: false, msg: "order is already cancelled !!!" });
+        }
+
+        orderDetail = await OrderModel.findOneAndUpdate({ _id: requestBody.orderId, userId, isDeleted: false }, { status: "cancelled" }, { new: true })
+
+        return res.status(200).send({ status: true, message: "Order cancelled successfully", data: orderDetail })
+
+    }
+    catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+module.exports = { createOrder, updateOrder }

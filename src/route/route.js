@@ -4,7 +4,6 @@ const userController = require("../controller/userController")
 const productController = require("../controller/productController")
 const CartController = require("../controller/cartController")
 const orderController = require("../controller/orderController")
-
 const middleware = require("../middleware/auth.js")
 
 
@@ -28,8 +27,12 @@ router.put("/users/:userId/cart",middleware.auth, CartController.updateCart);
 router.get("/users/:userId/cart",middleware.auth, CartController.getCart);
 router.delete("/users/:userId/cart",middleware.auth, CartController.deleteCart);
 
-//-------------------------------------------------------------------------------------
+//---------------------------------orderModel----------------------------------------------------//
 router.post("/users/:userId/orders",middleware.auth,orderController.createOrder);
+
+router.put("/users/:userId/orders",middleware.auth,orderController.updateOrder);
+
+
 
 
 
@@ -37,7 +40,7 @@ router.post("/users/:userId/orders",middleware.auth,orderController.createOrder)
 router.all("/**", function (req, res) {
     res.status(404).send({
         status: false,
-        msg: "The api you request is not available"
+        msg: "please provide Id in params"
     })
 })
 module.exports=router;
